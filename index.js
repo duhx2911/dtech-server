@@ -7,10 +7,10 @@ const port = process.env.PORT || 8000;
 app.use(cors());
 
 const con = mysql.createConnection({
-  host: process.env.DB_HOST || "sql.freedb.tech",
-  user: process.env.DB_USER || "freedb_duhx2911",
-  password: process.env.DB_PASSWORD || "GrrMhY@mx2&vJT?",
-  database: process.env.DB_NAME || "freedb_d-tech",
+  host: process.env.DB_HOST || "127.0.0.1",
+  user: process.env.DB_USER || "root",
+  password: process.env.DB_PASSWORD || "root",
+  database: process.env.DB_NAME || "dtech",
 });
 
 con.connect(function (err) {
