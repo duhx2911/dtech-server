@@ -49,6 +49,33 @@ app
       }
     });
   });
+app
+  .route("/product/:productId")
+  .put(function (req, res) {
+    let sql = "UPDATE products SET ? WHERE id=?";
+    const { body, params } = req;
+    const { productId } = params;
+
+    con.query(sql, [body, productId], function (err) {
+      if (err) {
+        res.send({ status: "error", message: err });
+      } else {
+        res.send({ status: "success", data: body });
+      }
+    });
+  })
+  .delete(function (req, res) {
+    const sql = "DELETE FROM products WHERE id=?";
+    const { productId } = req.params;
+
+    con.query(sql, productId, function (err) {
+      if (err) {
+        res.send({ status: "error", message: err });
+      } else {
+        res.send({ status: "success", data: productId });
+      }
+    });
+  });
 
 // Categories
 app
