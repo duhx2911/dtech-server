@@ -5,23 +5,18 @@ const mysql = require("mysql");
 const bodyParser = require("body-parser");
 const app = express();
 const port = process.env.PORT || 8000;
+const { db } = require("./db");
+const router = require("./auth/auth.routes");
+
+const authMiddleware = require("./auth/auth.middlewares");
 app.use(cors());
 
-const con = mysql.createConnection({
-  host: process.env.DB_HOST || "127.0.0.1",
-  port: 3306,
-  user: process.env.DB_USER || "root",
-  password: process.env.DB_PASSWORD || "root",
-  database: process.env.DB_NAME || "dtech",
-});
-
-con.connect(function (err) {
-  if (err) throw err;
-  console.log("Connected!!!");
-});
+const con = db();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+app.use("/auth", router);
 
 app
   .route("/products")
@@ -105,19 +100,32 @@ app
     });
   });
 
-app.route("/category/:id").put(function (req, res) {
-  let sql = "UPDATE categories SET ? WHERE id=?";
-  const { body, params } = req;
-  const { id } = params;
+app
+  .route("/category/:id")
+  .put(function (req, res) {
+    let sql = "UPDATE categories SET ? WHERE id=?";
+    const { body, params } = req;
+    const { id } = params;
 
-  con.query(sql, [body, id], function (err) {
-    if (err) {
-      res.send({ status: "error", message: err });
-    } else {
-      res.send({ status: "success", data: body });
-    }
+    con.query(sql, [body, id], function (err) {
+      if (err) {
+        res.send({ status: "error", message: err });
+      } else {
+        res.send({ status: "success", data: body });
+      }
+    });
+  })
+  .delete(function (req, res) {
+    let sql = "DELETE FROM categories WHERE id=?";
+    const { id } = req.params;
+    con.query(sql, id, function (err) {
+      if (err) {
+        res.send({ status: "error", message: err });
+      } else {
+        res.send({ status: "success", data: id });
+      }
+    });
   });
-});
 
 app.listen(port);
 console.log("Server started at http://localhost:" + port);
