@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "node-server",
+      name: "dtech-server",
       script: "./index.js",
     },
   ],
