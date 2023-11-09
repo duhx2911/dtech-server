@@ -1,7 +1,7 @@
 const express = require("express");
 const path = require("path");
 var cors = require("cors");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const bodyParser = require("body-parser");
 const app = express();
 const port = process.env.PORT || 8000;
@@ -17,6 +17,42 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use("/auth", router);
+
+app.route("/staff").get(function (req, res) {
+  let sql = "SELECT * FROM staff";
+  con.query(sql, (err, response) => {
+    if (err) {
+      res.send({ status: "error", message: err });
+    } else {
+      res.send({ status: "success", data: response });
+    }
+  });
+});
+app
+  .route("staff/:staffId")
+  .get(function (req, res) {
+    let sql = "SELECT * FROM staff where id =?";
+    const { staffId } = req.params;
+    con.query(sql, (err, response) => {
+      if (err) {
+        res.send({ status: "error", message: err });
+      } else {
+        res.send({ status: "success", data: response });
+      }
+    });
+  })
+  .put(function (req, res) {
+    let sql = "UPDATE staff SET ? WHERE id=?";
+    const { body, params } = req;
+    const { staffId } = params;
+    con.query(sql, [body, staffId], (err, response) => {
+      if (err) {
+        res.send({ status: "error", message: err });
+      } else {
+        res.send({ status: "success", data: body });
+      }
+    });
+  });
 
 app
   .route("/products")
