@@ -36,6 +36,24 @@ exports.registerAccount = async ({ username, password, fullname, email }) => {
   });
 };
 
+exports.changePasswordAccount = async ({ accountId, newpassword }) => {
+  return new Promise((resolve, reject) => {
+    const hashPassword = bcrypt.hashSync(newpassword, SALT_ROUNDS);
+    const passwordUser = {
+      password: hashPassword,
+    };
+    const sql = "UPDATE staff SET ? WHERE id = ?";
+
+    connect.query(sql, [passwordUser, accountId], function (err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+};
+
 exports.updateRefreshToken = async ({ refreshToken, accountId }) => {
   return new Promise((resolve, reject) => {
     const sql = "UPDATE staff SET ? WHERE id = ?";

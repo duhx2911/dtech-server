@@ -4,6 +4,7 @@ const {
   getAccounts,
   updateRefreshToken,
   registerAccount,
+  changePasswordAccount,
 } = require("../models/account");
 const randToken = require("rand-token");
 const bcrypt = require("bcrypt");
@@ -145,5 +146,54 @@ exports.refreshToken = async (req, res) => {
   }
   return res.json({
     accessToken,
+  });
+};
+
+exports.changePassword = async (req, res) => {
+  const accessTokenFromHeader = req.headers.authorization;
+  if (!accessTokenFromHeader) {
+    return res.status(400).send("Không tìm thấy access token.");
+  }
+  const accessTokenSecret =
+    process.env.ACCESS_TOKEN_SECRET || jwtVariable.accessTokenSecret;
+  const accessTokenLife =
+    process.env.ACCESS_TOKEN_LIFE || jwtVariable.accessTokenLife;
+  // Decode access token đó
+  const decoded = await authMethod.decodeToken(
+    accessTokenFromHeader,
+    accessTokenSecret
+  );
+
+  if (!decoded) {
+    return res.status(400).send("Access token không hợp lệ.");
+  }
+
+  const username = req.body.username.toLowerCase() || "test";
+  const password = req.body.password || "12345";
+  const newpassword = req.body.newpassword || "12345";
+  const getUser = await getAccounts({ username });
+  if (getUser && !getUser.length) {
+    return res.status(401).send("Đã có lỗi xảy ra vui lòng thử lại!");
+  }
+
+  const user = getUser && getUser[0];
+  const isPasswordValid = bcrypt.compareSync(password, user.password);
+  if (!isPasswordValid) {
+    return res.status(401).send("Mật khẩu không chính xác.");
+  }
+
+  const changePassword = await changePasswordAccount({
+    accountId: user.id,
+    newpassword,
+  });
+  if (!changePassword) {
+    return res
+      .status(400)
+      .send("Có lỗi trong quá trình đổi mật khẩu, vui lòng thử lại.");
+  }
+  return res.send({
+    status: "success",
+    username,
+    newpassword,
   });
 };
