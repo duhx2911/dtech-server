@@ -29,11 +29,11 @@ app.route("/staff").get(function (req, res) {
   });
 });
 app
-  .route("staff/:staffId")
+  .route("/staff/:staffId")
   .get(function (req, res) {
     let sql = "SELECT * FROM staff where id =?";
     const { staffId } = req.params;
-    con.query(sql, (err, response) => {
+    con.query(sql, staffId, (err, response) => {
       if (err) {
         res.send({ status: "error", message: err });
       } else {
@@ -41,7 +41,7 @@ app
       }
     });
   })
-  .put(function (req, res) {
+  .put(authMiddleware.isAuth, function (req, res) {
     let sql = "UPDATE staff SET ? WHERE id=?";
     const { body, params } = req;
     const { staffId } = params;
