@@ -42,16 +42,36 @@ app.post("/uploadfile", upload.single("myFile"), function (req, res, next) {
     error.httpStatusCode = 400;
     return next(error);
   }
-  const response = {
-    message: "Image mis à jour",
-  };
   res.send(file);
 });
 
-app.get("/getPhoto/:imageId", function (req, res, next) {
-  const { imageId } = req.params;
-  res.sendFile(__dirname + `/images/${imageId}`);
+app.post("/uploadmultiple", upload.array("myFiles", 12), (req, res, next) => {
+  const files = req.files;
+  if (!files) {
+    const error = new Error("Please choose files");
+    error.httpStatusCode = 400;
+    return next(error);
+  }
+  res.send(files);
 });
+
+app
+  .route("/getPhoto/:imageId")
+  .get(function (req, res, next) {
+    const { imageId } = req.params;
+    res.sendFile(__dirname + `/images/${imageId}`);
+  })
+  .delete(function (req, res) {
+    const { imageId } = req.params;
+    // fs.unlinkSync(`images/${imageId}`);
+    fs.unlink(`images/${imageId}`, (err) => {
+      if (err) {
+        res.send({ status: err });
+      } else {
+        res.send({ status: "success" });
+      }
+    });
+  });
 
 async function deleteAllFilesInDir(dirPath) {
   try {
@@ -114,6 +134,17 @@ app
     });
   });
 
+app.route("/products/:id").get(function (req, res) {
+  const { id } = req.params;
+  let sql = "SELECT * FROM products where id = ?";
+  con.query(sql, id, (err, response) => {
+    if (err) {
+      res.send({ status: "error", message: err });
+    } else {
+      res.send({ status: "success", data: response });
+    }
+  });
+});
 app
   .route("/products")
   .get(function (req, res) {
@@ -158,12 +189,92 @@ app
   .delete(function (req, res) {
     const sql = "DELETE FROM products WHERE id=?";
     const { productId } = req.params;
-
     con.query(sql, productId, function (err) {
       if (err) {
         res.send({ status: "error", message: err });
       } else {
         res.send({ status: "success", data: productId });
+      }
+    });
+  });
+app.route("/product/:slug").get(function (req, res) {
+  let sql = "SELECT * FROM products where slug = ?";
+  const { slug } = req.params;
+  con.query(sql, slug, (err, data) => {
+    if (err) {
+      res.send({ status: "error", message: err });
+    } else {
+      res.send({ status: "success", data: data });
+    }
+  });
+});
+app.route("/newproducts").get(function (req, res) {
+  let sql = "SELECT * FROM products order by create_at DESC limit 4;";
+  con.query(sql, (err, response) => {
+    if (err) {
+      res.send({ status: "error", message: err });
+    } else {
+      res.send({ status: "success", data: response });
+    }
+  });
+});
+app.route("/iphone").get(function (req, res) {
+  let sql =
+    "SELECT * FROM dtech.products where category_id = 1  order by rand(CURDATE()) limit 4;";
+  con.query(sql, (err, response) => {
+    if (err) {
+      res.send({ status: "error", message: err });
+    } else {
+      res.send({ status: "success", data: response });
+    }
+  });
+});
+app.route("/ipad").get(function (req, res) {
+  let sql =
+    "SELECT * FROM dtech.products where category_id = 2  order by rand(CURDATE()) limit 4;";
+  con.query(sql, (err, response) => {
+    if (err) {
+      res.send({ status: "error", message: err });
+    } else {
+      res.send({ status: "success", data: response });
+    }
+  });
+});
+
+app.route("/imageProduct/:id").get(function (req, res) {
+  const { id } = req.params;
+  let sql = "SELECT * FROM imageproduct where productId = ?";
+  con.query(sql, id, (err, response) => {
+    if (err) {
+      res.send({ status: "error", message: err });
+    } else {
+      res.send({ status: "success", data: response });
+    }
+  });
+});
+app
+  .route("/imageProduct")
+  .get(function (req, res) {
+    let sql = "SELECT * FROM imageproduct";
+    con.query(sql, (err, response) => {
+      if (err) {
+        res.send({ status: "error", message: err });
+      } else {
+        res.send({ status: "success", data: response });
+      }
+    });
+  })
+  .post(function (req, res) {
+    const { body } = req;
+    let sql = "insert into imageproduct set ?";
+    con.query(sql, body, function (err, response) {
+      if (err) {
+        res.send({ status: "error", message: err });
+      } else {
+        res.send({
+          status: "success",
+          data: { ...body, id: response.insertId },
+        });
       }
     });
   });
@@ -243,6 +354,47 @@ app.route("/authorization/:idAuth").delete(function (req, res) {
       res.send({ status: "error", message: err });
     } else {
       res.send({ status: "success", message: idAuth });
+    }
+  });
+});
+
+/*=====================
+    VOUCHER
+=======================*/
+app.route("/voucher/:code").get(function (req, res) {
+  const { code } = req.params;
+  const sql = "Select * From voucher Where code = ?";
+  con.query(sql, code, function (err, response) {
+    if (err) {
+      res.send({ status: "error", message: err });
+    } else {
+      res.send({ status: "success", data: response });
+    }
+  });
+});
+
+/*=====================
+    ORDER
+=======================*/
+app.route("/order").post(function (req, res) {
+  const { body } = req;
+  let sql = "Insert into dtech.order set ?";
+  con.query(sql, body, function (err, response) {
+    if (err) {
+      res.send({ status: "error", message: err });
+    } else {
+      res.send({ status: "success", data: { ...body, id: response.insertId } });
+    }
+  });
+});
+app.route("/orderDetail").post(function (req, res) {
+  const { body } = req;
+  let sql = "Insert into dtech.orderdetail set ?";
+  con.query(sql, body, function (err, response) {
+    if (err) {
+      res.send({ status: "error", message: err });
+    } else {
+      res.send({ status: "success", data: { ...body, id: response.insertId } });
     }
   });
 });
