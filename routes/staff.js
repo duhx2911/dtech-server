@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
+const { db } = require("../db");
+const con = db();
 const authMiddleware = require("./auth/auth.middlewares");
-router.get("/staff", function (req, res) {
-  let sql = "SELECT * FROM staff";
+router.get("/user", function (req, res) {
+  let sql = "SELECT * FROM user";
   con.query(sql, (err, response) => {
     if (err) {
       res.send({ status: "error", message: err });
@@ -12,10 +14,10 @@ router.get("/staff", function (req, res) {
   });
 });
 
-router.get("/staff/:staffId", function (req, res) {
-  let sql = "SELECT * FROM staff where id =?";
-  const { staffId } = req.params;
-  con.query(sql, staffId, (err, response) => {
+router.get("/user/:userId", function (req, res) {
+  let sql = "SELECT * FROM user where id =?";
+  const { userId } = req.params;
+  con.query(sql, userId, (err, response) => {
     if (err) {
       res.send({ status: "error", message: err });
     } else {
@@ -23,11 +25,11 @@ router.get("/staff/:staffId", function (req, res) {
     }
   });
 });
-router.put("/staff/:staffId", authMiddleware.isAuth, function (req, res) {
-  let sql = "UPDATE staff SET ? WHERE id=?";
+router.put("/user/:userId", authMiddleware.isAuth, function (req, res) {
+  let sql = "UPDATE user SET ? WHERE id=?";
   const { body, params } = req;
-  const { staffId } = params;
-  con.query(sql, [body, staffId], (err, response) => {
+  const { userId } = params;
+  con.query(sql, [body, userId], (err, response) => {
     if (err) {
       res.send({ status: "error", message: err });
     } else {

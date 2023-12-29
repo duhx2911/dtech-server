@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const { db } = require("../db");
+const con = db();
 
 router.get("/categories", function (req, res) {
   let sql = "SELECT * FROM categories";

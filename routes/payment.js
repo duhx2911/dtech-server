@@ -26,7 +26,7 @@ router.get("/refund", function (req, res, next) {
 });
 
 router.post("/create_payment_url", function (req, res, next) {
-  console.log(">>> body", req.body);
+  // console.log(">>> body", req.body);
   process.env.TZ = "Asia/Ho_Chi_Minh";
 
   let date = new Date();
@@ -44,7 +44,7 @@ router.post("/create_payment_url", function (req, res, next) {
   let secretKey = config.get("vnp_HashSecret");
   let vnpUrl = config.get("vnp_Url");
   let returnUrl = config.get("vnp_ReturnUrl");
-  let orderId = moment(date).format("DDHHmmss");
+  let orderId = req.body.orderCode;
   let amount = req.body.amount;
   let bankCode = req.body.bankCode;
 
@@ -60,7 +60,7 @@ router.post("/create_payment_url", function (req, res, next) {
   vnp_Params["vnp_Locale"] = locale;
   vnp_Params["vnp_CurrCode"] = currCode;
   vnp_Params["vnp_TxnRef"] = orderId;
-  vnp_Params["vnp_OrderInfo"] = "Thanh toan cho ma HD:" + orderId;
+  vnp_Params["vnp_OrderInfo"] = orderId;
   vnp_Params["vnp_OrderType"] = "other";
   vnp_Params["vnp_Amount"] = amount * 100;
   vnp_Params["vnp_ReturnUrl"] = returnUrl;
@@ -148,6 +148,7 @@ router.get("/vnpay_ipn", function (req, res, next) {
             //thanh cong
             //paymentStatus = '1'
             // Ở đây cập nhật trạng thái giao dịch thanh toán thành công vào CSDL của bạn
+            console.log("Giao dịch hoàn tất");
             res.status(200).json({ RspCode: "00", Message: "Success" });
           } else {
             //that bai
@@ -243,7 +244,7 @@ router.post("/querydr", function (req, res, next) {
       body: dataObj,
     },
     function (error, response, body) {
-      console.log(response);
+      // console.log(response);
     }
   );
 });
@@ -336,7 +337,7 @@ router.post("/refund", function (req, res, next) {
       body: dataObj,
     },
     function (error, response, body) {
-      console.log(response);
+      // console.log(response);
     }
   );
 });

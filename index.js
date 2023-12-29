@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-const logger = require("morgan");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
@@ -15,6 +14,8 @@ const categories = require("./routes/categories");
 const order = require("./routes/order");
 const imageproduct = require("./routes/imageproduct");
 const staff = require("./routes/imageproduct");
+const statistical = require("./routes/statistical");
+const review = require("./routes/review");
 
 const port = process.env.PORT || 8000;
 const app = express();
@@ -26,7 +27,6 @@ app.set("view engine", "jade");
 const con = db();
 
 app.use(cors());
-app.use(logger("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(cookieParser());
@@ -118,6 +118,11 @@ app.use("", product);
 app.use("", imageproduct);
 // Categories
 app.use("", categories);
+// statistical
+app.use("", statistical);
+// review
+app.use("", review);
+
 /*=====================
     VOUCHER
 =======================*/
@@ -132,6 +137,7 @@ app.route("/voucher/:code").get(function (req, res) {
     }
   });
 });
+
 // order
 app.use("", order);
 

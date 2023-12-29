@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const { db } = require("../db");
+const con = db();
 router.get("/imageProduct/:id", function (req, res) {
   const { id } = req.params;
   let sql = "SELECT * FROM imageproduct where productId = ?";

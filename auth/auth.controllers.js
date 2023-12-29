@@ -14,6 +14,7 @@ exports.register = async (req, res) => {
   const password = req.body.password.toLowerCase();
   const fullname = req.body.fullname;
   const email = req.body.email;
+  const role_id = req.body.role_id;
   const user = await getAccounts({ username });
   if (user && user.length) {
     return res.send({
@@ -27,6 +28,7 @@ exports.register = async (req, res) => {
       password,
       fullname,
       email,
+      role_id,
     });
     if (!createUser) {
       return res
@@ -39,6 +41,7 @@ exports.register = async (req, res) => {
       password,
       fullname,
       email,
+      role_id,
     });
   }
 };
