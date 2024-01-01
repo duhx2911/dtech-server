@@ -121,7 +121,7 @@ router.get("/ipad", function (req, res) {
 });
 router.get("/promotion", function (req, res) {
   const sql =
-    "SELECT prd.product_code,prd.productName,prd.price,prd.artwork,prom.value val FROM dtech.products prd LEFT JOIN promotion prom on prd.discount = prom.promotion_code where prom.value > 0;";
+    "SELECT prd.id,prd.product_code,prd.productName,prd.price,prd.artwork,prom.value val FROM dtech.products prd LEFT JOIN promotion prom on prd.discount = prom.promotion_code where prom.value > 0;";
   con.query(sql, function (err, response) {
     if (err) {
       res.send({ status: "error", message: err });

@@ -2,8 +2,8 @@ const express = require("express");
 const router = express.Router();
 const { db } = require("../db");
 const con = db();
-const authMiddleware = require("./auth/auth.middlewares");
-router.get("/user", function (req, res) {
+const authMiddleware = require("../auth/auth.middlewares");
+router.get("/user", authMiddleware.isAuth, function (req, res) {
   let sql = "SELECT * FROM user";
   con.query(sql, (err, response) => {
     if (err) {

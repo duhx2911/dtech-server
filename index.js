@@ -13,9 +13,10 @@ const product = require("./routes/product");
 const categories = require("./routes/categories");
 const order = require("./routes/order");
 const imageproduct = require("./routes/imageproduct");
-const staff = require("./routes/imageproduct");
+const user = require("./routes/user");
 const statistical = require("./routes/statistical");
 const review = require("./routes/review");
+const discount = require("./routes/promotion");
 
 const port = process.env.PORT || 8000;
 const app = express();
@@ -111,7 +112,7 @@ app.delete("/remove-all-images", async function (req, res, next) {
 // auth
 app.use("/auth", router);
 // Staff
-app.use("", staff);
+app.use("", user);
 // Product
 app.use("", product);
 // imageproduct
@@ -122,6 +123,7 @@ app.use("", categories);
 app.use("", statistical);
 // review
 app.use("", review);
+app.use("", discount);
 
 /*=====================
     VOUCHER
