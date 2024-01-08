@@ -5,16 +5,16 @@ const {
   updateRefreshToken,
   registerAccount,
   changePasswordAccount,
+  updateAccount,
 } = require("../models/account");
 const randToken = require("rand-token");
 const bcrypt = require("bcrypt");
 
 exports.register = async (req, res) => {
   const username = req.body.username.toLowerCase();
-  const password = req.body.password.toLowerCase();
-  const fullname = req.body.fullname;
-  const email = req.body.email;
-  const role_id = req.body.role_id;
+  const { body } = req;
+  body.username = req.body.username.toLowerCase();
+  body.password = req.body.password.toLowerCase();
   const user = await getAccounts({ username });
   if (user && user.length) {
     return res.send({
@@ -23,25 +23,39 @@ exports.register = async (req, res) => {
     });
   } else {
     // const createUser = await userModel.createUser(newUser);
-    const createUser = await registerAccount({
-      username,
-      password,
-      fullname,
-      email,
-      role_id,
-    });
+    const createUser = await registerAccount(body);
     if (!createUser) {
+      return res
+        .status(400)
+        .send("Có lỗi trong quá trình tạo tài khoản, vui lòng thử lại.");
+    }
+    console.log(createUser);
+    return res.send({
+      status: "success",
+      data: { ...body, id: createUser.insertId },
+    });
+  }
+};
+exports.updateUser = async (req, res) => {
+  const username = req.body.username.toLowerCase();
+  const { body } = req;
+  body.username = req.body.username.toLowerCase();
+  const user = await getAccounts({ username });
+  if (!user && !user.length) {
+    return res.send({
+      status: "error",
+      mess: "Tên tài khoản không tồn tại",
+    });
+  } else {
+    const updateUser = await updateAccount(body, body.id);
+    if (!updateUser) {
       return res
         .status(400)
         .send("Có lỗi trong quá trình tạo tài khoản, vui lòng thử lại.");
     }
     return res.send({
       status: "success",
-      username,
-      password,
-      fullname,
-      email,
-      role_id,
+      data: body,
     });
   }
 };

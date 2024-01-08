@@ -2,21 +2,10 @@ const express = require("express");
 const router = express.Router();
 const { db } = require("../db");
 const con = db();
-router.get("/products/:id", function (req, res) {
-  const { id } = req.params;
-  let sql = "SELECT * FROM products where id = ?";
-  con.query(sql, id, (err, response) => {
-    if (err) {
-      res.send({ status: "error", message: err });
-    } else {
-      res.send({ status: "success", data: response });
-    }
-  });
-});
 
 router.get("/products", function (req, res) {
   let sql =
-    "SELECT prd.*,prom.value discount_value FROM dtech.products prd LEFT JOIN promotion prom on prd.discount = prom.promotion_code";
+    "SELECT prd.*,prom.value discount_value,(prd.price - prd.price*prom.value/100) sales FROM dtech.products prd LEFT JOIN promotion prom on prd.discount = prom.promotion_code";
   con.query(sql, (err, response) => {
     if (err) {
       res.send({ status: "error", message: err });
@@ -42,7 +31,8 @@ router.post("/products", function (req, res) {
 
 router.get("/products/:productId", function (req, res) {
   const { productId } = req.params;
-  let sql = "SELECT * from products WHERE id=?";
+  let sql =
+    "SELECT prd.*,prom.value discount_value,(prd.price - prd.price*prom.value/100) sales FROM dtech.products prd LEFT JOIN promotion prom on prd.discount = prom.promotion_code where prd.id = ?;";
   con.query(sql, productId, function (err, response) {
     if (err) {
       res.send({ status: "error", message: err });
@@ -76,7 +66,8 @@ router.delete("/products/:productId", function (req, res) {
   });
 });
 router.get("/product/:slug", function (req, res) {
-  let sql = "SELECT * FROM products where slug = ?";
+  let sql =
+    "SELECT prd.*,prom.value discount_value,(prd.price - prd.price*prom.value/100) sales FROM dtech.products prd LEFT JOIN promotion prom on prd.discount = prom.promotion_code where slug = ?";
   const { slug } = req.params;
   con.query(sql, slug, (err, data) => {
     if (err) {
@@ -88,7 +79,7 @@ router.get("/product/:slug", function (req, res) {
 });
 router.get("/newproducts", function (req, res) {
   let sql =
-    "SELECT prd.*,prom.value discount_value FROM products prd LEFT JOIN promotion prom on prd.discount = prom.promotion_code order by create_at DESC limit 4;";
+    "SELECT prd.*,prom.value discount_value, (prd.price - prd.price*prom.value/100) sales FROM products prd LEFT JOIN promotion prom on prd.discount = prom.promotion_code order by create_at DESC limit 4;";
   con.query(sql, (err, response) => {
     if (err) {
       res.send({ status: "error", message: err });
@@ -99,7 +90,7 @@ router.get("/newproducts", function (req, res) {
 });
 router.get("/iphone", function (req, res) {
   let sql =
-    "SELECT prd.*,prom.value discount_value FROM products prd LEFT JOIN promotion prom on prd.discount = prom.promotion_code where category_id = 1  order by rand(CURDATE()) limit 4;";
+    "SELECT prd.*,prom.value discount_value,(prd.price - prd.price*prom.value/100) sales FROM products prd LEFT JOIN promotion prom on prd.discount = prom.promotion_code where category_id = 1  order by rand(CURDATE()) limit 4;";
   con.query(sql, (err, response) => {
     if (err) {
       res.send({ status: "error", message: err });
@@ -108,9 +99,20 @@ router.get("/iphone", function (req, res) {
     }
   });
 });
+router.get("/productCate/:cateSlug", function (req, res) {
+  let sql = "call dtech.getProductCate(?);";
+  let { cateSlug } = req.params;
+  con.query(sql, cateSlug, (err, response) => {
+    if (err) {
+      res.send({ status: "error", message: err });
+    } else {
+      res.send({ status: "success", data: response[0] });
+    }
+  });
+});
 router.get("/ipad", function (req, res) {
   let sql =
-    "SELECT prd.*,prom.value discount_value FROM products prd LEFT JOIN promotion prom on prd.discount = prom.promotion_code where category_id = 2  order by rand(CURDATE()) limit 4;";
+    "SELECT prd.*,prom.value discount_value,(prd.price - prd.price*prom.value/100) sales FROM products prd LEFT JOIN promotion prom on prd.discount = prom.promotion_code where category_id = 2  order by rand(CURDATE()) limit 4;";
   con.query(sql, (err, response) => {
     if (err) {
       res.send({ status: "error", message: err });

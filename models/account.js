@@ -16,24 +16,24 @@ exports.getAccounts = async ({ username }) => {
   });
 };
 
-exports.registerAccount = async ({
-  username,
-  password,
-  fullname,
-  email,
-  role_id,
-}) => {
+exports.registerAccount = async (body) => {
   return new Promise((resolve, reject) => {
-    const hashPassword = bcrypt.hashSync(password, SALT_ROUNDS);
-    const newUser = {
-      username: username,
-      password: hashPassword,
-      email: email,
-      fullname: fullname,
-      role_id: role_id,
-    };
+    body.password = bcrypt.hashSync(body.password, SALT_ROUNDS);
+
     let createUser = `INSERT INTO user SET ?`;
-    connect.query(createUser, newUser, function (err, data) {
+    connect.query(createUser, body, function (err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+};
+exports.updateAccount = async (body, accountId) => {
+  return new Promise((resolve, reject) => {
+    const sql = "UPDATE user SET ? WHERE id = ?";
+    connect.query(sql, [body, accountId], function (err, data) {
       if (err) {
         reject(err);
       } else {
