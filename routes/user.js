@@ -14,7 +14,7 @@ router.get("/user", function (req, res) {
   });
 });
 router.get("/staff", function (req, res) {
-  let sql = "SELECT * FROM user WHERE role_id<>0";
+  let sql = "SELECT * FROM user WHERE role_id=0";
   con.query(sql, (err, response) => {
     if (err) {
       res.send({ status: "error", message: err });
